@@ -1,0 +1,368 @@
+---
+title: "Project2_Q1(World Happiness)"
+author: "Justice Nii-Ayitey"
+date: "October 3, 2018"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dendroextras)
+library(dendextend)
+library(tidyverse)
+library(mclust)
+library(factoextra)
+library(MVA)
+library(circlize)
+library(cluster)   #allow us to represent (with the aid of PCA) the cluster solution into 2 dimensions
+library(NbClust) 
+```
+```{r}
+# A. CLUSTERING ANALYSIS
+```
+
+```{r}
+#WORLD HAPPINESS 2015
+hapi2015<-read.csv("https://raw.githubusercontent.com/sauchilee/Stat517/master/Data/World_Happiness_2015.csv")
+attach(hapi2015)
+dim(hapi2015)
+View(hapi2015)
+row.names(hapi2015)<-hapi2015$Country
+colnames(hapi2015)
+hapi2015.n=hapi2015[,6:12]
+hapi2015.ns=scale(hapi2015.n)
+hapi2015.nd=dist(hapi2015.ns)
+```
+
+```{r}
+#kmeans Clustering
+
+set.seed(2)
+km.out=kmeans(hapi2015.ns,2,nstart=20)
+#km.out$cluster
+km.out$withinss
+plot(hapi2015.ns, col=(km.out$cluster+1), main="K-Means Clustering Results with K=2", xlab="", ylab="", pch=20, cex=2)
+
+set.seed(4)
+km.out=kmeans(hapi2015.ns,3,nstart=20)
+km.out$withinss
+plot(hapi2015.ns, col=(km.out$cluster+1), main="K-Means Clustering Results with K=3", xlab="", ylab="", pch=20, cex=2) 
+
+#In general, as K increases; withiness decreases
+```
+
+```{r}
+k_means<-NbClust(hapi2015.ns, distance="euclidean", min.nc=2,max.nc=15, method="kmeans")
+k_means<-NbClust(hapi2015.ns, distance="euclidean", min.nc=2,max.nc=15, method="complete")
+k_means<-NbClust(hapi2015.ns, distance="euclidean", min.nc=2,max.nc=15, method="ward.D")
+```
+
+```{r}
+k.means.fit <- kmeans(hapi2015.ns, 4) # k = 4
+attributes(k.means.fit)
+# Centroids:
+k.means.fit$centers
+# Cluster size:
+k.means.fit$size
+clusplot(hapi2015.ns, k.means.fit$cluster, main='2D representation of the Cluster solution',
+         color=TRUE, shade=TRUE,
+         labels=2, lines=0)
+```
+
+```{r}
+#Hierarchical clustering
+
+#Hierarchical methods use a distance matrix as an input for the clustering algorithm. The choice of an #appropriate metric will influence the shape of the clusters, as some elements may be close to one another #according to one distance and farther away according to another.
+```
+
+```{r}
+hapi2015agg=agnes(hapi2015.nd,diss=FALSE,metric="euclidian")
+plot(hapi2015agg, main='Dendrogram') ## dendrogram
+```
+
+```{r}
+hc.complete=hclust(dist(hapi2015.ns), method="complete")
+hc.average=hclust(dist(hapi2015.ns), method="average")
+hc.single=hclust(dist(hapi2015.ns), method="single")
+par(mfrow=c(1,3))
+plot(hc.complete,main="Complete Linkage", xlab="", sub="", cex=.9)
+plot(hc.average, main="Average Linkage", xlab="", sub="", cex=.9)
+plot(hc.single, main="Single Linkage", xlab="", sub="", cex=.9)
+```
+
+
+```{r}
+#Model Baased Clustering
+
+hapi2015.nc=Mclust(hapi2015.ns)
+#summary(hapi2015.nc,  parameters = TRUE)
+fviz_mclust(hapi2015.nc,"BIC",palette="jco") 
+#plot(hapi2015.nc)
+```
+
+
+
+
+
+```{r}
+#WORLD HAPPINESS 2016
+
+hapi2016<-read.csv("https://raw.githubusercontent.com/sauchilee/Stat517/master/Data/World_Happiness_2016.csv")
+attach(hapi2016)
+dim(hapi2016)
+row.names(hapi2016)<-hapi2016$Country
+colnames(hapi2016)
+hapi2016.n=hapi2016[,7:13]
+hapi2016.ns=scale(hapi2016.n)
+hapi2016.nd=dist(hapi2016.ns)
+```
+
+```{r}
+#kmeans Clustering
+
+set.seed(2)
+km.out=kmeans(hapi2016.ns,2,nstart=20)
+#km.out$cluster
+km.out$withinss
+plot(hapi2016.ns, col=(km.out$cluster+1), main="K-Means Clustering Results with K=2", xlab="", ylab="", pch=20, cex=2)
+
+set.seed(4)
+km.out=kmeans(hapi2016.ns,3,nstart=20)
+km.out$withinss
+plot(hapi2016.ns, col=(km.out$cluster+1), main="K-Means Clustering Results with K=3", xlab="", ylab="", pch=20, cex=2) 
+```
+
+```{r}
+k_means<-NbClust(hapi2016.ns, distance="euclidean", min.nc=2,max.nc=15, method="kmeans")
+k_means<-NbClust(hapi2016.ns, distance="euclidean", min.nc=2,max.nc=15, method="complete")
+k_means<-NbClust(hapi2016.ns, distance="euclidean", min.nc=2,max.nc=15, method="ward.D")
+```
+
+```{r}
+k.means.fit <- kmeans(hapi2016.ns, 4) # k = 4
+attributes(k.means.fit)
+# Centroids:
+k.means.fit$centers
+# Cluster size:
+k.means.fit$size
+clusplot(hapi2016.ns, k.means.fit$cluster, main='2D representation of the Cluster solution',
+         color=TRUE, shade=TRUE,
+         labels=2, lines=0)
+```
+
+```{r}
+#Hierarchical clustering
+
+hapi2016agg=agnes(hapi2016.nd,diss=FALSE,metric="euclidian")
+plot(hapi2016agg, main='Dendrogram') ## dendrogram
+```
+
+```{r}
+hc.complete=hclust(dist(hapi2016.ns), method="complete")
+hc.average=hclust(dist(hapi2016.ns), method="average")
+hc.single=hclust(dist(hapi2016.ns), method="single")
+par(mfrow=c(1,3))
+plot(hc.complete,main="Complete Linkage", xlab="", sub="", cex=.9)
+plot(hc.average, main="Average Linkage", xlab="", sub="", cex=.9)
+plot(hc.single, main="Single Linkage", xlab="", sub="", cex=.9)
+```
+
+```{r}
+#Model Baased Clustering
+
+hapi2016.nc=Mclust(hapi2016.ns)
+#summary(hapi2016.nc,  parameters = TRUE)
+fviz_mclust(hapi2016.nc,"BIC",palette="jco") 
+#plot(hapi2016.nc)
+```
+
+
+
+
+
+```{r}
+#WORLD HAPPINESS 2017
+hapi2017<-read.csv("https://raw.githubusercontent.com/sauchilee/Stat517/master/Data/World_Happiness_2017.csv")
+attach(hapi2017)
+dim(hapi2017)
+row.names(hapi2017)<-hapi2017$Country
+colnames(hapi2017)
+hapi2017.n=hapi2017[,6:12]
+hapi2017.ns=scale(hapi2017.n)
+hapi2017.nd=dist(hapi2017.ns)
+```
+
+```{r}
+#kmeans Clustering
+
+set.seed(2)
+km.out=kmeans(hapi2017.ns,2,nstart=20)
+#km.out$cluster
+km.out$withinss
+plot(hapi2017.ns, col=(km.out$cluster+1), main="K-Means Clustering Results with K=2", xlab="", ylab="", pch=20, cex=2)
+
+set.seed(4)
+km.out=kmeans(hapi2017.ns,3,nstart=20)
+km.out$withinss
+plot(hapi2017.ns, col=(km.out$cluster+1), main="K-Means Clustering Results with K=3", xlab="", ylab="", pch=20, cex=2) 
+```
+
+```{r}
+k_means<-NbClust(hapi2017.ns, distance="euclidean", min.nc=2,max.nc=15, method="kmeans")
+k_means<-NbClust(hapi2017.ns, distance="euclidean", min.nc=2,max.nc=15, method="complete")
+k_means<-NbClust(hapi2017.ns, distance="euclidean", min.nc=2,max.nc=15, method="ward.D")
+```
+
+```{r}
+k.means.fit <- kmeans(hapi2017.ns, 4) # k = 4
+attributes(k.means.fit)
+# Centroids:
+k.means.fit$centers
+# Cluster size:
+k.means.fit$size
+clusplot(hapi2017.ns, k.means.fit$cluster, main='2D representation of the Cluster solution',
+         color=TRUE, shade=TRUE,
+         labels=2, lines=0)
+```
+
+```{r}
+#Hierarchical clustering
+
+hapi2017agg=agnes(hapi2017.nd,diss=FALSE,metric="euclidian")
+plot(hapi2017agg, main='Dendrogram') ## dendrogram
+```
+
+```{r}
+hc.complete=hclust(dist(hapi2017.ns), method="complete")
+hc.average=hclust(dist(hapi2017.ns), method="average")
+hc.single=hclust(dist(hapi2017.ns), method="single")
+par(mfrow=c(1,3))
+plot(hc.complete,main="Complete Linkage", xlab="", sub="", cex=.9)
+plot(hc.average, main="Average Linkage", xlab="", sub="", cex=.9)
+plot(hc.single, main="Single Linkage", xlab="", sub="", cex=.9)
+```
+
+```{r}
+#Model Baased Clustering
+
+hapi2017.nc=Mclust(hapi2017.ns)
+#summary(hapi2017.nc,  parameters = TRUE)
+fviz_mclust(hapi2017.nc,"BIC",palette="jco") 
+#plot(hapi2017.nc)
+```
+
+```{r}
+#B. SERIATION ANALYSIS
+# Seriation anlyses were performed to compare the generated order with the "Happiness" ranking.
+# Seriation does more than clustering, this is ordering
+library(seriation)
+```
+
+```{r}
+set.seed(50)
+xhapi2015<-as.matrix(hapi2015.n)
+xhapi2015<-xhapi2015[sample(seq_len(nrow(xhapi2015))),]
+dhapi2015<-dist(xhapi2015)
+ohapi2015<-seriate(dhapi2015, method = "TSP")
+pimage(dhapi2015,main="Random")
+```
+
+```{r}
+pimage(dhapi2015,ohapi2015,main="Reordered")
+```
+
+```{r}
+get_order(ohapi2015)
+```
+
+
+```{r}
+set.seed(50)
+xhapi2016<-as.matrix(hapi2016.n)
+xhapi2016<-xhapi2016[sample(seq_len(nrow(xhapi2016))),]
+dhapi2016<-dist(xhapi2016)
+ohapi2016<-seriate(dhapi2016, method = "TSP")
+pimage(dhapi2016,main="Random")
+```
+
+```{r}
+pimage(dhapi2016,ohapi2016,main="Reordered")
+```
+
+```{r}
+get_order(ohapi2016)
+```
+
+```{r}
+set.seed(50)
+xhapi2017<-as.matrix(hapi2017.n)
+xhapi2017<-xhapi2017[sample(seq_len(nrow(xhapi2017))),]
+dhapi2017<-dist(xhapi2017)
+ohapi2017<-seriate(dhapi2017, method = "TSP")
+pimage(dhapi2017,main="Random")
+```
+
+```{r}
+pimage(dhapi2017,ohapi2017,main="Reordered")
+```
+
+```{r}
+get_order(ohapi2017)
+```
+
+#C. Report 
+ 1) Norway tops the global happiness rankings for all three years 2015, 2016, and 2017
+ 
+ From the seriation analyses, it can be seen that Norway does not top the global happiness rankings for all three years ( 2015, 2016, and 2017).
+
+ 2) All top ten countries rank highly on all the main features found to support happiness
+ 
+ I doubt beacause, it was only Sweden that was among the top ten countries in 2015 happiness from the ordering. Hence, I guess their ranking was just based on happiness scores.
+
+ 3) Happiness is both social and personal
+ 
+The correlation between Family(as social) and Economy..GDP.per.Capita.(as personal) was  0.64 which is moderate. Hence, I guess there is a relationship between happiness and both social and personal.
+ 
+
+ 4) Unemployment causes a major fall in happiness, and even for those in work the quality of work can cause major variations in happiness
+ 
+Also, the correlation between unemployment(as Trust..Government.Corruption) and happiness(as Happiness.Score) was 0.4 which is weak. Hence, I doubt if unemployment causes a major fall in happiness 
+ 
+ 
+ 5) China are no happier than most countries, though richer and longer longevity
+ 
+China falls within 75th quartile in the seriation analysis of all the years, hence China are no happier than most countries, though richer and longer longevity.
+
+ 6) Much of Africa is struggling
+ 
+From the seriation analysis, though quite a number of Africa countries lies within the last 10 countries in happiness 2017 but they are not as much as compare to happiness in 2015 and 2016, hence there is no much evidence that, there is much of Africa struggling.
+
+ 7) Happiness has fallen in America
+From the Happiness.Rank, America was ranked as 15 but it was not part of the first 15 from the seriation analysis of any of the years, hence we could say it has fallen.
+
+
+
+
+
+
+
+
+```{r}
+colnames(hapi2015)
+cor(hapi2015$Family,hapi2015$Economy..GDP.per.Capita.)
+
+cor(hapi2015$Trust..Government.Corruption,hapi2015$Happiness.Score)
+```
+
+```{r}
+
+```
+
+
+
+
