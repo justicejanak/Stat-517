@@ -1,0 +1,70 @@
+---
+title: "Stat517_final Project (Unsupervised-Association)"
+author: "Justice Nii-Ayitey"
+date: "December 11, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(arules)
+library(arulesViz)
+library(arulesCBA)
+```
+
+```{r}
+data=read.csv("https://raw.githubusercontent.com/justicejanak/Stat-517/master/vehicles.csv")
+dim(data)
+```
+
+```{r}
+vehicle.association<-data[,-c(1:24,26,28:30,33:46,48,51:57,59:62,65:77,81:83)]
+dim(vehicle.association)
+vehicle.association[,names(vehicle.association)]<-lapply(vehicle.association[,names(vehicle.association)],factor)
+vehicle.association<-as(vehicle.association,"transactions")
+itemFrequencyPlot(vehicle.association[, itemFrequency(vehicle.association) > 0.5], cex.names = 0.7)
+```
+
+```{r}
+Chevrolet_association <- apriori(data = vehicle.association , parameter = list( supp = 0.001 , conf = 0.55) , appearance = list(default = "lhs" , rhs = "make=Chevrolet" ) )
+
+Chevrolet_association<-sort(Chevrolet_association , decreasing = TRUE , by = 'lift')
+inspect(Chevrolet_association[1:7])
+```
+
+```{r}
+Ford_association <- apriori(data = vehicle.association , parameter = list( supp = 0.001 , conf = 0.55) , appearance = list(default = "lhs" , rhs = "make=Ford" ) )
+
+Ford_association<-sort(Ford_association , decreasing = TRUE , by = 'lift')
+inspect(Ford_association[1:7])
+```
+
+```{r}
+Dodge_association <- apriori(data = vehicle.association , parameter = list( supp = 0.001 , conf = 0.55) , appearance = list(default = "lhs" , rhs = "make=Dodge" ) )
+
+Dodge_association<-sort(Dodge_association , decreasing = TRUE , by = 'lift')
+inspect(Dodge_association[1:7])
+```
+
+```{r}
+GMC_association <- apriori(data = vehicle.association , parameter = list( supp = 0.001 , conf = 0.55) , appearance = list(default = "lhs" , rhs = "make=GMC" ) )
+
+GMC_association<-sort(GMC_association , decreasing = TRUE , by = 'lift')
+inspect(GMC_association[1:7])
+```
+
+
+```{r}
+Toyota_association <- apriori(data = vehicle.association , parameter = list( supp = 0.001 , conf = 0.55) , appearance = list(default = "lhs" , rhs = "make=Toyota" ) )
+
+Toyota_association<-sort(Toyota_association , decreasing = TRUE , by = 'lift')
+inspect(Toyota_association[1:7])
+```
+
+
+
+
+
